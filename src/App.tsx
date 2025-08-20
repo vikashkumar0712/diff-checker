@@ -9,11 +9,17 @@ function App() {
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   const diffResult = useMemo(() => {
+    try {
     if (!leftText && !rightText) return null;
     return compareLinesWithWords(leftText, rightText);
+    } catch (error) {
+      console.error('Error computing diff:', error);
+      return null;
+    }
   }, [leftText, rightText]);
 
   const handleFileUpload = useCallback((side: 'left' | 'right') => {
+    try {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = '.txt,.js,.ts,.jsx,.tsx,.html,.css,.json,.md,.py,.java,.cpp,.c,.xml,.yaml,.yml';
@@ -22,17 +28,27 @@ function App() {
       if (file) {
         const reader = new FileReader();
         reader.onload = (e) => {
-          const content = e.target?.result as string;
-          if (side === 'left') {
-            setLeftText(content);
-          } else {
-            setRightText(content);
+            try {
+              const content = e.target?.result as string;
+              if (side === 'left') {
+                setLeftText(content);
+              } else {
+                setRightText(content);
+              }
+            } catch (error) {
+              console.error('Error reading file:', error);
           }
         };
+          reader.onerror = () => {
+            console.error('Error reading file');
+          };
         reader.readAsText(file);
       }
     };
     input.click();
+    } catch (error) {
+      console.error('Error handling file upload:', error);
+    }
   }, []);
 
   const handleClear = useCallback(() => {
@@ -41,11 +57,27 @@ function App() {
   }, []);
 
   const handleCopy = useCallback((side: 'left' | 'right') => {
+    try {
     const text = side === 'left' ? leftText : rightText;
-    navigator.clipboard.writeText(text);
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text);
+      } else {
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+      }
+    } catch (error) {
+      console.error('Error copying text:', error);
+    }
   }, [leftText, rightText]);
 
   const renderDiffLines = (lines: any[], side: 'left' | 'right') => {
+    if (!lines || !Array.isArray(lines)) return null;
+    
     return lines.map((line, index) => {
       let bgColor = '';
       let borderColor = '';
