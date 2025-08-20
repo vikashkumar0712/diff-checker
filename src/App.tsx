@@ -10,8 +10,8 @@ function App() {
 
   const diffResult = useMemo(() => {
     try {
-    if (!leftText && !rightText) return null;
-    return compareLinesWithWords(leftText, rightText);
+      if (!leftText && !rightText) return null;
+      return compareLinesWithWords(leftText, rightText);
     } catch (error) {
       console.error('Error computing diff:', error);
       return null;
@@ -20,14 +20,14 @@ function App() {
 
   const handleFileUpload = useCallback((side: 'left' | 'right') => {
     try {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.txt,.js,.ts,.jsx,.tsx,.html,.css,.json,.md,.py,.java,.cpp,.c,.xml,.yaml,.yml';
-    input.onchange = (e) => {
-      const file = (e.target as HTMLInputElement).files?.[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.txt,.js,.ts,.jsx,.tsx,.html,.css,.json,.md,.py,.java,.cpp,.c,.xml,.yaml,.yml';
+      input.onchange = (e) => {
+        const file = (e.target as HTMLInputElement).files?.[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
             try {
               const content = e.target?.result as string;
               if (side === 'left') {
@@ -37,15 +37,15 @@ function App() {
               }
             } catch (error) {
               console.error('Error reading file:', error);
-          }
-        };
+            }
+          };
           reader.onerror = () => {
             console.error('Error reading file');
           };
-        reader.readAsText(file);
-      }
-    };
-    input.click();
+          reader.readAsText(file);
+        }
+      };
+      input.click();
     } catch (error) {
       console.error('Error handling file upload:', error);
     }
@@ -58,7 +58,7 @@ function App() {
 
   const handleCopy = useCallback((side: 'left' | 'right') => {
     try {
-    const text = side === 'left' ? leftText : rightText;
+      const text = side === 'left' ? leftText : rightText;
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(text);
       } else {
